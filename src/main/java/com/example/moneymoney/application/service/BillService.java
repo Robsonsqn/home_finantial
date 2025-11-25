@@ -95,7 +95,7 @@ public class BillService {
 
         // I need to find the bill first.
         Bill bill = billRepository.findById(billId)
-                .orElseThrow(() -> new RuntimeException("Bill not found")); // Should use a specific exception
+                .orElseThrow(() -> new com.example.moneymoney.domain.exception.BillNotFoundException(billId));
 
         // Basic permission check: if house bill, user must be member. If personal, user
         // must be owner.

@@ -21,13 +21,14 @@ public class House {
 
     private void validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("House name cannot be empty");
+            throw new com.example.moneymoney.domain.exception.InvalidHouseNameException("House name cannot be empty");
         }
         if (name.length() < 3) {
-            throw new IllegalArgumentException("House name must have at least 3 characters");
+            throw new com.example.moneymoney.domain.exception.InvalidHouseNameException(
+                    "House name must have at least 3 characters");
         }
         if (name.length() > 50) {
-            throw new IllegalArgumentException("House name is too long");
+            throw new com.example.moneymoney.domain.exception.InvalidHouseNameException("House name is too long");
         }
     }
 

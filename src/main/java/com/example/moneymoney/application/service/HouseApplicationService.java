@@ -15,10 +15,8 @@ import com.example.moneymoney.domain.model.UserHouse;
 import com.example.moneymoney.domain.exception.HouseNotFoundException;
 import com.example.moneymoney.domain.exception.InsufficientPermissionsException;
 import com.example.moneymoney.domain.exception.UserNotFoundException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -80,7 +78,8 @@ public class HouseApplicationService implements CreateHouseUseCase, InviteMember
                 .orElseThrow(() -> new UserNotFoundException(emailInvited));
 
         if (userHouseRepository.existsByHouseAndUser(house, invitedUser)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already a member of this house");
+            throw new com.example.moneymoney.domain.exception.UserAlreadyMemberException(
+                    "User is already a member of this house");
         }
 
         UserHouse newUserHouse = new UserHouse(invitedUser, house, HouseRole.MEMBER);

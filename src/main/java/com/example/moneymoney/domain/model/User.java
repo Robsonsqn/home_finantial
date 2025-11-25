@@ -36,22 +36,22 @@ public class User {
 
     private void validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
+            throw new com.example.moneymoney.domain.exception.InvalidUserNameException("Name cannot be empty");
         }
         if (name.length() > 100) {
-            throw new IllegalArgumentException("Name too long");
+            throw new com.example.moneymoney.domain.exception.InvalidUserNameException("Name too long");
         }
     }
 
     private void validateEmail(String email) {
         if (email == null || !email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email");
+            throw new com.example.moneymoney.domain.exception.InvalidEmailException("Invalid email");
         }
     }
 
     private void validateIncome(BigDecimal income) {
         if (income != null && income.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Income cannot be negative");
+            throw new com.example.moneymoney.domain.exception.InvalidIncomeException("Income cannot be negative");
         }
     }
 

@@ -3,7 +3,7 @@ package com.example.moneymoney.infrastructure.adapters.in.web;
 import com.example.moneymoney.application.dto.FinanceSummaryDTO;
 import com.example.moneymoney.application.service.FinanceService;
 import com.example.moneymoney.domain.model.User;
-import com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity;
+import com.example.moneymoney.infrastructure.security.AuthenticationHelper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,9 +19,11 @@ import java.time.LocalDate;
 public class FinanceController {
 
     private final FinanceService financeService;
+    private final AuthenticationHelper authHelper;
 
-    public FinanceController(FinanceService financeService) {
+    public FinanceController(FinanceService financeService, AuthenticationHelper authHelper) {
         this.financeService = financeService;
+        this.authHelper = authHelper;
     }
 
     @GetMapping
@@ -29,8 +31,7 @@ public class FinanceController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) Integer month,
             @RequestParam(required = false) Integer year) {
-        UserJpaEntity userEntity = (UserJpaEntity) userDetails;
-        User user = toDomain(userEntity);
+        User user = authHelper.getCurrentUser(userDetails);
 
         LocalDate now = LocalDate.now();
         int targetMonth = month != null ? month : now.getMonthValue();
@@ -38,10 +39,5 @@ public class FinanceController {
 
         FinanceSummaryDTO summary = financeService.getMonthlySummary(user, targetMonth, targetYear);
         return ResponseEntity.ok(summary);
-    }
-
-    private User toDomain(UserJpaEntity entity) {
-        return new User(entity.getId(), entity.getName(), entity.getEmail(), entity.getPasswordHash(),
-                entity.getIncome());
     }
 }

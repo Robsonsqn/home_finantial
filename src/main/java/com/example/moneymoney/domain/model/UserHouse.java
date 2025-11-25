@@ -14,13 +14,13 @@ public class UserHouse {
 
     public UserHouse(User user, House house, HouseRole role) {
         if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
+            throw new com.example.moneymoney.domain.exception.InvalidUserHouseException("User cannot be null");
         }
         if (house == null) {
-            throw new IllegalArgumentException("House cannot be null");
+            throw new com.example.moneymoney.domain.exception.InvalidUserHouseException("House cannot be null");
         }
         if (role == null) {
-            throw new IllegalArgumentException("Role cannot be null");
+            throw new com.example.moneymoney.domain.exception.InvalidUserHouseException("Role cannot be null");
         }
         this.user = user;
         this.house = house;

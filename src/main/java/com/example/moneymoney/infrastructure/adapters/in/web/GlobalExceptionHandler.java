@@ -39,6 +39,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, "Email Already Exists", ex.getMessage());
     }
 
+    @ExceptionHandler(com.example.moneymoney.domain.exception.UserAlreadyMemberException.class)
+    public ResponseEntity<Map<String, Object>> handleUserAlreadyMember(
+            com.example.moneymoney.domain.exception.UserAlreadyMemberException ex) {
+        return buildErrorResponse(HttpStatus.CONFLICT, "User Already Member", ex.getMessage());
+    }
+
     @ExceptionHandler(InsufficientPermissionsException.class)
     public ResponseEntity<Map<String, Object>> handleInsufficientPermissions(InsufficientPermissionsException ex) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, "Insufficient Permissions", ex.getMessage());
