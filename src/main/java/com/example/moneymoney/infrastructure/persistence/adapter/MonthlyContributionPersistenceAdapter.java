@@ -26,6 +26,14 @@ public class MonthlyContributionPersistenceAdapter implements MonthlyContributio
     }
 
     @Override
+    public java.util.Optional<MonthlyContribution> findByHouseAndUserAndMonthAndYear(House house, User user, int month,
+            int year) {
+        HouseJpaEntity houseEntity = toEntity(house);
+        UserJpaEntity userEntity = toEntity(user);
+        return repository.findByHouseAndUserAndMonthAndYear(houseEntity, userEntity, month, year).map(this::toDomain);
+    }
+
+    @Override
     public MonthlyContribution save(MonthlyContribution contribution) {
         MonthlyContributionJpaEntity entity = toEntity(contribution);
         MonthlyContributionJpaEntity savedEntity = repository.save(entity);

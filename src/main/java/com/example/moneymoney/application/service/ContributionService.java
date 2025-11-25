@@ -68,4 +68,22 @@ public class ContributionService {
         MonthlyContribution contribution = new MonthlyContribution(month, year, percentage, user, house);
         monthlyContributionRepository.save(contribution);
     }
+
+    public BigDecimal calculateCurrentPercentage(User user, House house) {
+        List<UserHouse> members = userHouseRepository.findByHouse(house);
+        if (members.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal totalIncome = BigDecimal.ZERO;
+        for (UserHouse uh : members) {
+            totalIncome = totalIncome.add(uh.getUser().getIncome());
+        }
+
+        if (totalIncome.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return user.getIncome().divide(totalIncome, 4, RoundingMode.HALF_EVEN);
+    }
 }

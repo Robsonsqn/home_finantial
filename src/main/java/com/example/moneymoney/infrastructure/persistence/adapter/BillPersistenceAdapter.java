@@ -9,6 +9,7 @@ import com.example.moneymoney.infrastructure.persistence.entity.HouseJpaEntity;
 import com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity;
 import com.example.moneymoney.infrastructure.persistence.repository.BillJpaRepository;
 import org.springframework.stereotype.Component;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +56,20 @@ public class BillPersistenceAdapter implements BillRepositoryPort {
                 .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BigDecimal sumByHouseAndDueDateBetween(House house, LocalDate start, LocalDate end) {
+        HouseJpaEntity houseEntity = new HouseJpaEntity();
+        houseEntity.setId(house.getId());
+        return billJpaRepository.sumByHouseAndDueDateBetween(houseEntity, start, end);
+    }
+
+    @Override
+    public BigDecimal sumByUserAndHouseIsNullAndDueDateBetween(User user, LocalDate start, LocalDate end) {
+        UserJpaEntity userEntity = new UserJpaEntity();
+        userEntity.setId(user.getId());
+        return billJpaRepository.sumByUserAndHouseIsNullAndDueDateBetween(userEntity, start, end);
     }
 
     private BillJpaEntity toJpaEntity(Bill bill) {
