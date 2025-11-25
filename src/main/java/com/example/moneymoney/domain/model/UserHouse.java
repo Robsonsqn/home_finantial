@@ -1,5 +1,7 @@
 package com.example.moneymoney.domain.model;
 
+import com.example.moneymoney.domain.exception.InsufficientPermissionsException;
+
 public class UserHouse {
 
     private Long id;
@@ -11,6 +13,15 @@ public class UserHouse {
     }
 
     public UserHouse(User user, House house, HouseRole role) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        if (house == null) {
+            throw new IllegalArgumentException("House cannot be null");
+        }
+        if (role == null) {
+            throw new IllegalArgumentException("Role cannot be null");
+        }
         this.user = user;
         this.house = house;
         this.role = role;
@@ -53,5 +64,25 @@ public class UserHouse {
 
     public void setRole(HouseRole role) {
         this.role = role;
+    }
+
+    public boolean isAdmin() {
+        return this.role == HouseRole.ADMIN;
+    }
+
+    public boolean isMember() {
+        return this.role == HouseRole.MEMBER;
+    }
+
+    public void validateCanInviteMembers() {
+        if (!isAdmin()) {
+            throw new InsufficientPermissionsException("Only admins can invite members");
+        }
+    }
+
+    public void validateCanRemoveMembers() {
+        if (!isAdmin()) {
+            throw new InsufficientPermissionsException("Only admins can remove members");
+        }
     }
 }

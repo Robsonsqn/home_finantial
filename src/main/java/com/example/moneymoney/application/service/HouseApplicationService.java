@@ -12,6 +12,9 @@ import com.example.moneymoney.domain.model.House;
 import com.example.moneymoney.domain.model.HouseRole;
 import com.example.moneymoney.domain.model.User;
 import com.example.moneymoney.domain.model.UserHouse;
+import com.example.moneymoney.domain.exception.HouseNotFoundException;
+import com.example.moneymoney.domain.exception.InsufficientPermissionsException;
+import com.example.moneymoney.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,19 +68,16 @@ public class HouseApplicationService implements CreateHouseUseCase, InviteMember
     @Transactional
     public void inviteMember(Long houseId, String emailInvited, User requester) {
         House house = houseRepository.findById(houseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "House not found"));
+                .orElseThrow(() -> new HouseNotFoundException(houseId));
 
         UserHouse requesterUserHouse = userHouseRepository.findByHouseAndUser(house, requester)
                 .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not a member of this house"));
+                        () -> new InsufficientPermissionsException("You are not a member of this house"));
 
-        if (requesterUserHouse.getRole() != HouseRole.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can invite members");
-        }
+        requesterUserHouse.validateCanInviteMembers();
 
         User invitedUser = userRepository.findByEmail(emailInvited)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "User not found with email: " + emailInvited));
+                .orElseThrow(() -> new UserNotFoundException(emailInvited));
 
         if (userHouseRepository.existsByHouseAndUser(house, invitedUser)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already a member of this house");

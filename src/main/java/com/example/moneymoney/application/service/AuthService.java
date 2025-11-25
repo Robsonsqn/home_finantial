@@ -3,10 +3,11 @@ package com.example.moneymoney.application.service;
 import com.example.moneymoney.application.dto.auth.LoginRequestDTO;
 import com.example.moneymoney.application.dto.auth.LoginResponseDTO;
 import com.example.moneymoney.application.dto.auth.RegisterRequestDTO;
-import com.example.moneymoney.infrastructure.security.JwtService;
-import com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity;
-import com.example.moneymoney.infrastructure.persistence.repository.UserJpaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.moneymoney.application.port.out.TokenGeneratorPort;
+import com.example.moneymoney.application.port.out.UserRepositoryPort;
+import com.example.moneymoney.domain.exception.EmailAlreadyExistsException;
+import com.example.moneymoney.domain.exception.UserNotFoundException;
+import com.example.moneymoney.domain.model.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,30 +16,29 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private final UserJpaRepository userRepository;
+    private final UserRepositoryPort userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+    private final TokenGeneratorPort tokenGenerator;
 
-    @Autowired
-    public AuthService(UserJpaRepository userRepository, PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthService(UserRepositoryPort userRepository, PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager, TokenGeneratorPort tokenGenerator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
+        this.tokenGenerator = tokenGenerator;
     }
 
     public void register(RegisterRequestDTO dto) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException(dto.getEmail());
         }
 
-        UserJpaEntity newUser = new UserJpaEntity();
-        newUser.setName(dto.getName());
-        newUser.setEmail(dto.getEmail());
-        newUser.setIncome(dto.getIncome());
-        newUser.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        User newUser = new User(
+                dto.getName(),
+                dto.getEmail(),
+                passwordEncoder.encode(dto.getPassword()),
+                dto.getIncome());
 
         userRepository.save(newUser);
     }
@@ -47,10 +47,10 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
 
-        var user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new UserNotFoundException(dto.getEmail()));
 
-        var jwtToken = jwtService.generateToken(user);
+        String jwtToken = tokenGenerator.generateToken(user);
         return new LoginResponseDTO(jwtToken);
     }
 }

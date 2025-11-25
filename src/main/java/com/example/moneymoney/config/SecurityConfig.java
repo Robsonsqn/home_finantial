@@ -1,7 +1,6 @@
 package com.example.moneymoney.config;
 
 import com.example.moneymoney.infrastructure.security.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,7 +15,6 @@ public class SecurityConfig {
 
         private final JwtAuthenticationFilter jwtAuthFilter;
 
-        @Autowired
         public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
                 this.jwtAuthFilter = jwtAuthFilter;
         }

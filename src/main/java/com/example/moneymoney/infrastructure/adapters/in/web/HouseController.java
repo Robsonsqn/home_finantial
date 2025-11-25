@@ -24,23 +24,23 @@ public class HouseController {
     private final GetMyHousesUseCase getMyHousesUseCase;
     private final InviteMemberUseCase inviteMemberUseCase;
 
-    private final com.example.moneymoney.application.service.UserService userService;
+    private final com.example.moneymoney.infrastructure.security.AuthenticationHelper authHelper;
 
     public HouseController(CreateHouseUseCase createHouseUseCase,
             GetMyHousesUseCase getMyHousesUseCase,
             InviteMemberUseCase inviteMemberUseCase,
-            com.example.moneymoney.application.service.UserService userService) {
+            com.example.moneymoney.infrastructure.security.AuthenticationHelper authHelper) {
         this.createHouseUseCase = createHouseUseCase;
         this.getMyHousesUseCase = getMyHousesUseCase;
         this.inviteMemberUseCase = inviteMemberUseCase;
-        this.userService = userService;
+        this.authHelper = authHelper;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public HouseResponseDTO createHouse(@RequestBody @jakarta.validation.Valid HouseCreateDTO dto,
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
-        User user = resolveUser(userDetails);
+        User user = authHelper.getCurrentUser(userDetails);
         logger.info("User {} is creating a new house with name: {}", user.getEmail(), dto.name());
         HouseResponseDTO house = createHouseUseCase.createHouse(dto, user);
         logger.info("House created successfully with ID: {}", house.id());
@@ -50,7 +50,7 @@ public class HouseController {
     @GetMapping
     public List<HouseResponseDTO> getMyHouses(
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
-        User user = resolveUser(userDetails);
+        User user = authHelper.getCurrentUser(userDetails);
         logger.info("User {} is retrieving their houses", user.getEmail());
         return getMyHousesUseCase.getMyHouses(user);
     }
@@ -59,20 +59,11 @@ public class HouseController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void inviteMember(@PathVariable Long houseId, @RequestBody Map<String, String> body,
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
-        User user = resolveUser(userDetails);
+        User user = authHelper.getCurrentUser(userDetails);
         String email = body.get("email");
         logger.info("User {} is inviting {} to house ID: {}", user.getEmail(), email, houseId);
         inviteMemberUseCase.inviteMember(houseId, email, user);
         logger.info("Invitation sent successfully to {}", email);
-    }
-
-    private User resolveUser(org.springframework.security.core.userdetails.UserDetails userDetails) {
-        if (userDetails instanceof com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity) {
-            Long userId = ((com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity) userDetails)
-                    .getId();
-            return userService.getUserProfile(userId);
-        }
-        throw new RuntimeException("Unknown user principal type");
     }
 
     // Note: removeMember was in the original controller but I didn't create a Use

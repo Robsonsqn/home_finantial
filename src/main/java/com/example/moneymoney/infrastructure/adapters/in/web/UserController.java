@@ -11,48 +11,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final com.example.moneymoney.application.service.UserService userService;
+    private final com.example.moneymoney.infrastructure.security.AuthenticationHelper authHelper;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    public UserController(com.example.moneymoney.application.service.UserService userService) {
+    public UserController(com.example.moneymoney.application.service.UserService userService,
+            com.example.moneymoney.infrastructure.security.AuthenticationHelper authHelper) {
         this.userService = userService;
+        this.authHelper = authHelper;
     }
 
     @GetMapping("/me")
-    public User getCurrentUser(
+    public com.example.moneymoney.application.dto.user.UserResponseDTO getCurrentUser(
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
-        // Assuming the username is the email or some identifier we can use to fetch the
-        // user
-        // Or if UserDetails IS the entity, we can cast it, but better to fetch fresh or
-        // map it.
-        // Since UserJpaEntity implements UserDetails and has getId(), let's try to cast
-        // or use username.
-        // But to be safe and clean, let's fetch by username (email).
-        // Actually, UserService has getUserProfile(Long id).
-        // UserDetails doesn't guarantee getId(). UserJpaEntity does.
-        if (userDetails instanceof com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity) {
-            Long userId = ((com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity) userDetails)
-                    .getId();
-            return userService.getUserProfile(userId);
-        }
-        // Fallback or error
-        throw new RuntimeException("Unknown user principal type");
+        User user = authHelper.getCurrentUser(userDetails);
+        return com.example.moneymoney.application.dto.user.UserResponseDTO.fromDomain(user);
     }
 
     @GetMapping("/me/profile")
-    public User getProfile(
+    public com.example.moneymoney.application.dto.user.UserResponseDTO getProfile(
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
         return getCurrentUser(userDetails);
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/me/profile")
-    public User updateProfile(
+    public com.example.moneymoney.application.dto.user.UserResponseDTO updateProfile(
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails,
             @org.springframework.web.bind.annotation.RequestBody com.example.moneymoney.application.dto.user.UpdateProfileDTO dto) {
-        if (userDetails instanceof com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity) {
-            Long userId = ((com.example.moneymoney.infrastructure.persistence.entity.UserJpaEntity) userDetails)
-                    .getId();
-            return userService.updateUserProfile(userId, dto);
-        }
-        throw new RuntimeException("Unknown user principal type");
+        User currentUser = authHelper.getCurrentUser(userDetails);
+        User updatedUser = userService.updateUserProfile(currentUser.getId(), dto);
+        return com.example.moneymoney.application.dto.user.UserResponseDTO.fromDomain(updatedUser);
     }
 }

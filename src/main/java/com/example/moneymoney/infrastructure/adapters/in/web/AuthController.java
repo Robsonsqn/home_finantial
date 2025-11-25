@@ -5,7 +5,6 @@ import com.example.moneymoney.application.dto.auth.LoginRequestDTO;
 import com.example.moneymoney.application.dto.auth.LoginResponseDTO;
 import com.example.moneymoney.application.dto.auth.RegisterRequestDTO;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +19,6 @@ public class AuthController {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
 
-    @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
