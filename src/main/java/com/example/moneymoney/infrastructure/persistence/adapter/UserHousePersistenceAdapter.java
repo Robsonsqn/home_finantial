@@ -62,6 +62,11 @@ public class UserHousePersistenceAdapter implements UserHouseRepositoryPort {
     }
 
     @Override
+    public boolean existsByUserIdAndHouseId(Long userId, Long houseId) {
+        return userHouseJpaRepository.existsByUserIdAndHouseId(userId, houseId);
+    }
+
+    @Override
     public void delete(UserHouse userHouse) {
         UserHouseJpaEntity entity = toEntity(userHouse);
         userHouseJpaRepository.delete(entity);

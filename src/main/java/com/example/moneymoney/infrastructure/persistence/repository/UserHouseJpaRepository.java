@@ -17,4 +17,6 @@ public interface UserHouseJpaRepository extends JpaRepository<UserHouseJpaEntity
     Optional<UserHouseJpaEntity> findByHouseAndUser(HouseJpaEntity house, UserJpaEntity user);
 
     boolean existsByHouseAndUser(HouseJpaEntity house, UserJpaEntity user);
+
+    boolean existsByUserIdAndHouseId(Long userId, Long houseId);
 }

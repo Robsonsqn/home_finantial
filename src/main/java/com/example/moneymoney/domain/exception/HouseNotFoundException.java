@@ -4,4 +4,8 @@ public class HouseNotFoundException extends DomainException {
     public HouseNotFoundException(Long houseId) {
         super("House not found with ID: " + houseId);
     }
+
+    public HouseNotFoundException(String message) {
+        super(message);
+    }
 }

@@ -24,6 +24,19 @@ public class HouseJpaEntity {
         this.name = name;
     }
 
+    public com.example.moneymoney.domain.model.House toDomain() {
+        return new com.example.moneymoney.domain.model.House(
+                this.id,
+                this.name);
+    }
+
+    public static HouseJpaEntity fromDomain(com.example.moneymoney.domain.model.House house) {
+        HouseJpaEntity entity = new HouseJpaEntity();
+        entity.setId(house.getId());
+        entity.setName(house.getName());
+        return entity;
+    }
+
     public Long getId() {
         return id;
     }

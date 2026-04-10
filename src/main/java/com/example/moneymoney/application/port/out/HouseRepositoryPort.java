@@ -9,4 +9,6 @@ public interface HouseRepositoryPort {
     Optional<House> findById(Long id);
 
     java.util.List<House> findAll();
+
+    boolean existsById(Long id);
 }

@@ -31,6 +31,25 @@ public class UserJpaEntity implements UserDetails {
         this.income = income;
     }
 
+    public com.example.moneymoney.domain.model.User toDomain() {
+        return new com.example.moneymoney.domain.model.User(
+                this.id,
+                this.name,
+                this.email,
+                this.passwordHash,
+                this.income);
+    }
+
+    public static UserJpaEntity fromDomain(com.example.moneymoney.domain.model.User user) {
+        UserJpaEntity entity = new UserJpaEntity();
+        entity.setId(user.getId());
+        entity.setName(user.getName());
+        entity.setEmail(user.getEmail());
+        entity.setPasswordHash(user.getPasswordHash());
+        entity.setIncome(user.getIncome());
+        return entity;
+    }
+
     public Long getId() {
         return id;
     }

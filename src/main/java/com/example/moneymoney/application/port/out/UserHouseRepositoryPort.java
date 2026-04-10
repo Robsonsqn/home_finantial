@@ -17,5 +17,7 @@ public interface UserHouseRepositoryPort {
 
     boolean existsByHouseAndUser(House house, User user);
 
+    boolean existsByUserIdAndHouseId(Long userId, Long houseId);
+
     void delete(UserHouse userHouse);
 }

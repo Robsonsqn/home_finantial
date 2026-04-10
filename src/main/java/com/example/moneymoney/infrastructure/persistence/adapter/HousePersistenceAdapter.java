@@ -38,6 +38,11 @@ public class HousePersistenceAdapter implements HouseRepositoryPort {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean existsById(Long id) {
+        return houseJpaRepository.existsById(id);
+    }
+
     private HouseJpaEntity toEntity(House house) {
         return new HouseJpaEntity(house.getId(), house.getName());
     }
