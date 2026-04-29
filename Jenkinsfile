@@ -38,14 +38,16 @@ pipeline {
         }
 
         stage('Deploy K8s') {
+            agent {
+                docker { 
+                    image 'bitnami/kubectl:latest' 
+                    // Garante que ele acesse o arquivo kubeconfig gerado nos steps anteriores
+                    args '-u root' 
+                }
+            }
             steps {
-                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_CONFIG')]) {
-                    echo "Aplicando os Manifestos no Cluster Kubernetes..."
-                    
-                    sh "kubectl --kubeconfig \$KUBE_CONFIG apply -f k8s/postgres-deployment.yaml"
-                    sh "kubectl --kubeconfig \$KUBE_CONFIG apply -f k8s/postgres-service.yaml"
-                    sh "kubectl --kubeconfig \$KUBE_CONFIG apply -f k8s/app-deployment.yaml"
-                    sh "kubectl --kubeconfig \$KUBE_CONFIG apply -f k8s/app-service.yaml"
+                withCredentials([file(credentialsId: 'sua-credencial-kubeconfig', variable: 'KUBE_CONFIG')]) {
+                    sh 'kubectl --kubeconfig $KUBE_CONFIG apply -f k8s/postgres-deployment.yaml'
                 }
             }
         }
